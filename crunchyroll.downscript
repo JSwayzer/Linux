@@ -1,0 +1,39 @@
+#!/bin/bash
+#programa para baixar animes do site crunchyroll, do catalogo inteiro
+#version: 0
+#data de criacao: Thu Sep 12 11:38:10 EDT 2019 - America/Sao Paulo
+#autor: Johnny S.
+#data de alteracao: 
+#alteracao realizada para 
+
+
+screenfetch
+
+#Qual link do anime
+wget $1 -O crunchyroll.html
+#setup destination directory
+dir=/media/sf_D_DRIVE/Videos/Youtube-dl/Anime
+anime_name=`grep '@context' crunchyroll.html | cut -d '"' -f24 | sed 's/\//_/g' | sed 's/|/_/g' | sed 's/</-/g' | sed 's/>/-/g' | sed 's/*/-/g' | sed 's/:/_-/g' | sed 's/“/-/g' | sed 's/?/ _/g' | sed 's/ /_/g'`
+
+grep '/episode' crunchyroll.html | grep -v 'http:' | cut -d'"' -f2 | sed -e 's/\/pt-br/https:\/\/www.crunchyroll.com/g' > lista_episodios.txt
+echo "#####################################"
+echo "#Lista de episodios a serem baixados#"
+echo "#####################################";echo;echo
+cat lista_episodios.txt;echo
+numero_de_episodios=`cat lista_episodios.txt | wc -l`
+echo "Total de $numero_de_episodios episodios";echo;echo
+echo "Em media cada episodio demora 2:00 a 2:30 minutos para baixar"
+echo "para que o site nao entenda que ha um ataque durante o download"
+echo "este programa ira baixar os episodios com intervalos de 60sec+"
+tempo_download=$(($numero_de_episodios*3))
+echo "Portanto o download de todos os episodios terminara em +- $tempo_download"
+echo "cada episodio tem +-1GB, logo serao baixados $numero_de_episodios GB";echo;echo;echo
+
+counter=45
+for i in `cat lista_episodios.txt` ;do
+	echo "Iniciando downlaod do episodio $i";echo;echo
+	youtube-dl --all-subs --geo-bypass  --write-description --write-info-json --write-annotations --write-all-thumbnails --no-mark-watched --include-ads -f best -ciw -v $i
+
+counter=$(($counter+12))
+sleep $counter
+done;
